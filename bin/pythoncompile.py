@@ -834,7 +834,10 @@ class TSFile:
             #args = ["tsc", "-t","ES"+str(ESVersion), "--declaration", "--sourcemap", self.__realPath, "--out", self.__realPath[:-2]+"js"]
             #
             #
-            args = ["node","node_modules/typescript/bin/tsc.js", "-t","ES"+str(ESVersion), "--declaration", "--sourcemap", self.__realPath, "--out", self.__realPath[:-2]+"js"]
+            path = os.path.abspath(__file__)
+            path = os.path.join(path, "../../lib")
+            #LOG.red(path)
+            args = ["node",path+"/node_modules/typescript/bin/tsc.js", "-t","ES"+str(ESVersion), "--declaration", "--sourcemap", self.__realPath, "--out", self.__realPath[:-2]+"js"]
             #print(" ".join(args))
            # print(args)
             pipe = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -1107,25 +1110,36 @@ class TSFile:
         return self.__str__()
 
 
-
+def initialize():
+    LOG.green("initiliazing project")
+    if(Tools.cmdExist("git")):
+        os.system("git clone https://github.com/borisyankov/DefinitelyTyped.git lib")
+    with open('metatypescript.json', 'w') as outfile:
+        outfile.write('{\n"folders":["module/submodule"],\n"out":{},\n"compile_modules":false}')
+    os.makedirs("module/submodule")
+    with open('module/submodule/MyClass.ts', 'w') as outfile:
+        outfile.write('module module.submodule{\nexport class MyClass{}\n}')
 if __name__ == '__main__':
     LOG = Console()
     LOG.info("Typescript Start")
     #LOG.green(sys.argv[0])
     #LOG.red(os.getcwd())
+    #
+    if(not os.path.isfile('metatypescript.json')):
+        initialize()
     try:
-        file_config=open('config_pythoncompile.json','r')
+        file_config=open('metatypescript.json','r')
     except:
-        LOG.red(os.getcwd()+"/config_pythoncompile.json not found")
+        LOG.red(os.getcwd()+"/metatypescript.json not found")
         sys.exit(1)
     data = json.load(file_config)
     
     file_config.close()
-
+    initialize = False
 
     directory = data["folders"][0]
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "d:es5:ns:nn", ["directory=","es5","nosound","nonotification"])
+        opts, args = getopt.getopt(sys.argv[1:], "d:es5:ns:nn:init", ["directory=","es5","nosound","nonotification","initialize"])
         for o, a in opts:
             if o in ("-d", "--directory"):
                 directory = a
@@ -1135,9 +1149,14 @@ if __name__ == '__main__':
                 USE_SOUND = False
             elif o in ("-nn","--nonotification"):
                 USE_NOTIFICATION = False
+            elif o in ("-init","--initialize"):
+                initialize = True
 
     except getopt.GetoptError as err:
         LOG.error(err)
+    if(initialize):
+        initialize()
+
     MegaWatcher(data["folders"])
     exit(1)
     for folder in data["folders"]:

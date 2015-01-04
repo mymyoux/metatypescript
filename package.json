@@ -6,7 +6,7 @@
   },
   "name": "metatypescript",
   "description": "Typescript module - sync. Alternative to CommonJS, AMD and RequireJS",
-  "version": "2.7.7",
+  "version": "3.0.1",
   "repository": {
     "type":"git",
     "url": "https://github.com/mymyoux/metatypescript.git"
@@ -16,7 +16,7 @@
   "bin": {
     "metatypescript": "./bin/pythoncompile.py"
   },
-  "dependencies": {"typescript":"latest"},
+  "dependencies": {"typescript":"Microsoft/TypeScript"},
   "devDependencies": {},
   "optionalDependencies": {},
   "engines": {
