@@ -1,0 +1,38 @@
+{
+  "author": { 
+    "name" : "Jeremy Dubois",
+    "email" : "mymyoux@gmail.com",
+    "url" : "http://twitter/mymyoux"
+  },
+  "name": "metatypescript",
+  "description": "Typescript module - sync. Alternative to CommonJS, AMD and RequireJS",
+  "version": "2.7.7",
+  "repository": {
+    "type":"git",
+    "url": "https://github.com/mymyoux/metatypescript.git"
+  },
+  "license" : "MIT" ,
+  "main": "./lib/main",
+  "bin": {
+    "metatypescript": "./bin/pythoncompile.py"
+  },
+  "dependencies": {"typescript":"latest"},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "contributors":
+  [
+    { 
+      "name" : "Nicolas Fontenit",
+      "email" : "nicolas.fontenit@gmail.com",
+      "url" : "http://twitter.com/n_fon"
+    },
+    { 
+      "name" : "Guillaume Smaha",
+      "email" : "guillaume.smaha@gmail.com",
+      "url" : "http://twitter.com/MouxonBender"
+    }
+  ]
+}

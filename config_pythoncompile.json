@@ -1,0 +1,12 @@
+{
+	"folders":[
+		"framework/ghost",
+		"framework/browser",
+		"game/battle"
+	],
+	"out":
+	{
+		"battle/main":"../js/main.js"
+	},
+	"compile_modules":false
+}
