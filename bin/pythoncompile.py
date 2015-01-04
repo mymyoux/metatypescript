@@ -12,7 +12,7 @@ from pprint import pprint
 from subprocess import *
 
 
-VERSION = 2.7
+VERSION = 3.0
 
 REGEXP_IMPORT = re.compile('/// *<reference path="(.*)/([^/]+)/[^"]+" */>')
 #REGEXP_IMPORT_D_TS = re.compile('/// *<reference path=".*/([^/]+)/[^.]+\.class\.d\.ts" */>')
@@ -24,6 +24,7 @@ REGEXP_CUSTOM = re.compile('/// *< *([a-z]+) */>')
 ESVersion = 3
 USE_SOUND = True
 USE_NOTIFICATION = True
+TYPESCRIPT_PATH = None
 
 class Console:
     def __init__(self):
@@ -96,7 +97,7 @@ class MegaWatcher:
             self.__fileWatchers[name] = TSFilesWatcher(folder, self, name)
 
         try:
-            file_config=open('.pythoncompile.json','r')
+            file_config=open('.cache_metacompile.json','r')
 
             data = json.load(file_config)
             file_config.close()
@@ -244,7 +245,7 @@ class MegaWatcher:
             for tsfile in toCompile:
                 save[tsfile.getLongModuleName()] = {"dependencies":tsfile.getDependencyMD5(), "errors":tsfile.isFailed(),"last_date":tsfile.getLastDate(),"last_date_compilation":tsfile.getLastCompilationDate()}
             save = json.dumps(save)
-            f = open(".pythoncompile.json","w")
+            f = open(".cache_metacompile.json","w")
             f.write(save)
             f.close()
 
@@ -593,7 +594,11 @@ class Tools:
     def cmdExist(name):
         try:
             devnull = open(os.devnull)
-            subprocess.Popen([name], stdout=devnull, stderr=devnull).communicate()
+            if(isinstance(name, basestring)):
+                args = [name]
+            else:
+                args = name
+            subprocess.Popen(args, stdout=devnull, stderr=devnull).communicate()
         except OSError as e:
             if e.errno == os.errno.ENOENT:
                 return False
@@ -601,16 +606,16 @@ class Tools:
 
     @staticmethod
     def speak(text):
-        if(Tools.cmdExist("say")):
+        if(Tools.cmdExist(["say", "''"])):
             os.system("say '"+text+"'")
 
     @staticmethod
     def notify(text, title, subtitle, icon, sound):
-        if(sys.platform[:3] == 'os2'):
+        notifySubtitle = ""
+        if(sys.platform == 'darwin'):
             if(not Tools.cmdExist("terminal-notifier")):
                 os.system("brew install terminal-notifier")
 
-	    notifySubtitle = ""
             if(subtitle is not None and len(subtitle.strip()) > 0):
                 notifySubtitle = "-substitle '"+subtitle+"'"
             os.system("terminal-notifier -message '"+text+"' "+notifySubtitle+" -title '"+title+"' -activate com.googlecode.iterm2 -sound "+sound+" -group compile")
@@ -830,22 +835,22 @@ class TSFile:
         module_not_in_d_ts, files_import, module_to_copy = self.prepare()
         start_time2 = time.time()
         try:
+            global TYPESCRIPT_PATH
             #args = ["tsc", "-t","ES"+str(ESVersion), "--declaration", "--sourcemap", self.__realPath, "--out", self.__realPath[:-2]+"js"]
             #args = ["tsc", "-t","ES"+str(ESVersion), "--declaration", "--sourcemap", self.__realPath, "--out", self.__realPath[:-2]+"js"]
             #
             #
-            path = os.path.abspath(__file__)
-            path = os.path.join(path, "../../lib")
+            
             #LOG.red(path)
-            args = ["node",path+"/node_modules/typescript/bin/tsc.js", "-t","ES"+str(ESVersion), "--declaration", "--sourcemap", self.__realPath, "--out", self.__realPath[:-2]+"js"]
+            args = TYPESCRIPT_PATH + ["-t","ES"+str(ESVersion), "--declaration", "--sourcemap", self.__realPath, "--out", self.__realPath[:-2]+"js"]
             #print(" ".join(args))
            # print(args)
             pipe = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except:
             LOG.error("Typescript is not installed - please execute:")
             LOG.error("npm -g install typescript")
-
-            sys.exit()
+            LOG.red(sys.exc_info()[0])
+            sys.exit(1)
             return
         output, errors = pipe.communicate()
         #pipe.wait()
@@ -1115,7 +1120,7 @@ def initialize():
     if(Tools.cmdExist("git")):
         os.system("git clone https://github.com/borisyankov/DefinitelyTyped.git lib")
     with open('metatypescript.json', 'w') as outfile:
-        outfile.write('{\n"folders":["module/submodule"],\n"out":{},\n"compile_modules":false}')
+        outfile.write('{\n"folders":["module/submodule"],\n"out":{submodule},\n"compile_modules":false}')
     os.makedirs("module/submodule")
     with open('module/submodule/MyClass.ts', 'w') as outfile:
         outfile.write('module module.submodule{\nexport class MyClass{}\n}')
@@ -1125,6 +1130,16 @@ if __name__ == '__main__':
     #LOG.green(sys.argv[0])
     #LOG.red(os.getcwd())
     #
+    if(TYPESCRIPT_PATH is None):
+        if(Tools.cmdExist("tsc")):
+            TYPESCRIPT_PATH = ["tsc"]
+        else:
+            path = os.path.dirname(os.path.realpath(__file__))
+            path = os.path.join(path, "../")
+            TYPESCRIPT_PATH = ["node", path+"node_modules/typescript/bin/tsc.js" ]
+        LOG.green("Typescript version:")
+        subprocess.call(TYPESCRIPT_PATH+["-v"])
+
     if(not os.path.isfile('metatypescript.json')):
         initialize()
     try:
@@ -1160,7 +1175,7 @@ if __name__ == '__main__':
     MegaWatcher(data["folders"])
     exit(1)
     for folder in data["folders"]:
-        if(not os.path.exists(folder)):
+        if(not os.path.exists(folder)): 
             LOG.error(folder+" not found")
             exit(1)
         LOG.info("Reading "+folder+" folder")

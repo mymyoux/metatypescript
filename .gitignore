@@ -1,1 +1,5 @@
 node_modules
+lib
+.cache_metatypescript.json
+metatypescript.json
+
