@@ -8,7 +8,7 @@ It is designed to manage big projects with a lot of dependencies between files/m
 It comes with a bunch of dependencies helpers and JS generations.
  
 The files are separated into submodules and only submodules than require recompilations will be recompiled (determined by their dependencies). 
-Each submodule can be compiled **from 0.4s ot 1s** so instead to have a 20s compilation project you will have a 1s compilation project:)
+Each submodule can be compiled **from 0.4s to 1s** so instead to have a 20s compilation project you will have a 1s compilation project:)
 
 
 ##Setup
