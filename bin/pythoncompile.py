@@ -8,6 +8,7 @@ import datetime
 import json
 import copy
 import hashlib
+import shutil
 from pprint import pprint
 from subprocess import *
 
@@ -116,7 +117,7 @@ class MegaWatcher:
                             self.__fileWatchers[parentName].getModule(module).setLastCompilationDate(data[key]["last_date_compilation"])
                         self.__fileWatchers[parentName].getModule(module).init()
         except Exception as error:
-            LOG.error("Error Reading JSON")
+            LOG.orange("No previous compilation found")
             print(error)
             pass
         
@@ -1123,11 +1124,22 @@ def initialize():
     LOG.green("initiliazing project")
     if(Tools.cmdExist("git")):
         os.system("git clone https://github.com/borisyankov/DefinitelyTyped.git lib")
-    with open('metatypescript.json', 'w') as outfile:
-        outfile.write('{\n"folders":["module/submodule"],\n"out":{submodule},\n"compile_modules":false}')
-    os.makedirs("module/submodule")
-    with open('module/submodule/MyClass.ts', 'w') as outfile:
-        outfile.write('module module.submodule{\nexport class MyClass{}\n}')
+    #distutils.shutil.copytree()
+    source_example = os.path.abspath(os.path.dirname(os.path.realpath(__file__))+os.sep+".."+os.sep+"example")
+    copytree(source_example, ".")
+    
+
+def copytree(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        try:
+            if os.path.isdir(s):
+                shutil.copytree(s, d, symlinks, ignore)
+            else:
+                shutil.copy2(s, d)
+        except:
+            LOG.red(d+" already exists or can't be written")
 if __name__ == '__main__':
     LOG = Console()
     LOG.info("Typescript Start")
@@ -1145,6 +1157,7 @@ if __name__ == '__main__':
         subprocess.call(TYPESCRIPT_PATH+["-v"])
 
     if(not os.path.isfile('metatypescript.json')):
+        LOG.orange("No metatypescript.json file found - initializing a new project")
         initialize()
     try:
         file_config=open('metatypescript.json','r')

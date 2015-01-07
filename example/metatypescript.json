@@ -1,0 +1,11 @@
+{
+	"folders":[
+		"example/module2",
+		"example/module1"
+	],
+	"out":
+	{
+		"module2/main":"js/main.js"
+	},
+	"compile_modules":false
+}
