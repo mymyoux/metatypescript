@@ -635,8 +635,12 @@ class Tools:
                 n = pynotify.Notification(notifyTitle, text, "dialog-"+icon)
                 n.set_urgency(pynotify.URGENCY_NORMAL)
                 n.set_timeout(2500)
-                if not n.show():
-                    print "Failed to send notification"
+                try:
+                    if not n.show():
+                        print "Failed to send notification"
+                except:
+                    print "Failed to send notification (restart metatypescript is needed)"
+                    pass
 
 
 class TSFile:
