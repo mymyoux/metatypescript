@@ -12,7 +12,7 @@ from pprint import pprint
 from subprocess import *
 
 
-VERSION = 3.0
+VERSION = 3.1
 
 REGEXP_IMPORT = re.compile('/// *<reference path="(.*)/([^/]+)/[^"]+" */>')
 #REGEXP_IMPORT_D_TS = re.compile('/// *<reference path=".*/([^/]+)/[^.]+\.class\.d\.ts" */>')
@@ -109,7 +109,11 @@ class MegaWatcher:
                         self.__fileWatchers[parentName].getModule(module).setDependencyMD5(data[key]["dependencies"])
                         self.__fileWatchers[parentName].getModule(module).setError(data[key]["errors"])
                         self.__fileWatchers[parentName].getModule(module).setLastDate(data[key]["last_date"])
-                        self.__fileWatchers[parentName].getModule(module).setLastCompilationDate(data[key]["last_date_compilation"])
+                        #force recompilation of errors
+                        if(data[key]["errors"]):
+                            self.__fileWatchers[parentName].getModule(module).setLastCompilationDate(0)
+                        else:
+                            self.__fileWatchers[parentName].getModule(module).setLastCompilationDate(data[key]["last_date_compilation"])
                         self.__fileWatchers[parentName].getModule(module).init()
         except Exception as error:
             LOG.error("Error Reading JSON")
@@ -1154,7 +1158,7 @@ if __name__ == '__main__':
 
     directory = data["folders"][0]
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "d:es5:ns:nn:init", ["directory=","es5","nosound","nonotification","initialize"])
+        opts, args = getopt.getopt(sys.argv[1:], "d:es5:ns:nn:init:R", ["directory=","es5","nosound","nonotification","initialize","reset"])
         for o, a in opts:
             if o in ("-d", "--directory"):
                 directory = a
@@ -1166,6 +1170,8 @@ if __name__ == '__main__':
                 USE_NOTIFICATION = False
             elif o in ("-init","--initialize"):
                 initialize = True
+            elif o in ("-R","--reset"):
+                os.remove(".cache_metacompile.json");
 
     except getopt.GetoptError as err:
         LOG.error(err)
