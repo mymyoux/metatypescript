@@ -1173,12 +1173,12 @@ if __name__ == '__main__':
     file_config.close()
     initialize = False
 
-    directory = data["folders"][0]
+    directories = data["folders"]
     try:
         opts, args = getopt.getopt(sys.argv[1:], "d:es5:ns:nn:init:R", ["directory=","es5","nosound","nonotification","initialize","reset"])
         for o, a in opts:
             if o in ("-d", "--directory"):
-                directory = a
+                directories = [a]
             elif o in ("-es5", "--es5"):
                 ESVersion = 5
             elif o in ("-ns","--nosound"):
@@ -1195,9 +1195,9 @@ if __name__ == '__main__':
     if(initialize):
         initialize()
 
-    MegaWatcher(data["folders"])
+    MegaWatcher(directories)
     exit(1)
-    for folder in data["folders"]:
+    for folder in directories:
         if(not os.path.exists(folder)): 
             LOG.error(folder+" not found")
             exit(1)
