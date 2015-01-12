@@ -1188,8 +1188,9 @@ if __name__ == '__main__':
             elif o in ("-init","--initialize"):
                 initialize = True
             elif o in ("-R","--reset"):
-                if(os.path.isfile('.cache_metacompile.json')):
-                    os.remove(".cache_metacompile.json");
+                if(os.path.exists('.cache_metacompile.json')): 
+                    if(os.path.isfile('.cache_metacompile.json')):
+                        os.remove(".cache_metacompile.json");
 
     except getopt.GetoptError as err:
         LOG.error(err)
