@@ -708,10 +708,11 @@ class TSFile:
         #return
         files_dir = []
         files_import = []
+        files_dependencies = {}
         lib_import = []
         module_not_in_d_ts = []
         module_to_copy = []
-        for root, subFolders, files in os.walk(file,followlinks=True):
+        for root, subFolders, files in os.walk(file,followlinks=False):
             for f in files:
                 if(f[0:1]!="."):
                     extension = f.split(".")
@@ -719,9 +720,10 @@ class TSFile:
                         if(os.path.relpath(os.path.join(root,f)) == moduleFile):
                             continue
                         fileread = open(os.path.join(root,f), "r")
-                        
+                        relative_path = os.path.join(root, f)[len(file)+1:]
                         excluded = False
-                        
+                        files_dependencies[relative_path] = []
+
                         for line in fileread:
                             result = REGEXP_CUSTOM.match(line)
                             if(result != None):
@@ -781,6 +783,7 @@ class TSFile:
 
                                         if(module_file not in files_import):
                                             files_import.append(module_file)
+                                            
                                         if(not include_in_d_ts and module_file not in module_not_in_d_ts):
                                             module_not_in_d_ts.append(module_file)
                                         
@@ -789,8 +792,15 @@ class TSFile:
                                         module_file = result
                                         if(module_file[-3:]!=".ts"):
                                             module_file += ".ts"
-                                        if(module_file not in files_dir):
-                                            files_dir.append(module_file)
+                                            
+                                        if(module_file not in files_dependencies[relative_path]):
+                                                files_dependencies[relative_path].append(module_file)
+                                                #LOG.green(module_file+" imported by "+relative_path)
+                                        #if(module_file in files_dir):
+                                            #LOG.red("remove "+module_file)
+                                            #files_dir.remove(module_file)
+                                        #LOG.green("add "+module_file+" from "+str(f))
+                                        #files_dir.insert(0, module_file)
                                     elif(type == "lib"):
                                         #import d'une librairie
                                         module_file = ".."+os.path.sep+".."+os.path.sep+".."+os.path.sep+"lib"+os.path.sep+result+os.path.sep+result+".d.ts"
@@ -815,7 +825,7 @@ class TSFile:
                             if(file_test not in files_dir):
                                 files_dir.append(file_test)
         if(len(lib_import)>0):
-            content = "/* Librairies Externes */\n"
+            content = "/* Extern Librairies */\n"
             for line in lib_import:
                 content += "///<reference path=\""+line+"\"/>\n"
         else:
@@ -824,15 +834,43 @@ class TSFile:
         if(len(files_import)>0):
             if(len(content)>0):
                 content+="\n"
-            content += "/* Modules Externes */\n"
+            content += "/* Extern Modules */\n"
             for line in files_import:
                 content+= "///<reference path=\""+line+"\"/>\n"
         if(len(files_dir)>0):
             if(len(content)>0):
                 content+="\n"
-            content += "\n/* Fichiers Internes */\n"
+            
+            Found = True
+            i = 0
+            content += "\n/* Internal Files from Deps*/\n"
+            while(Found and i < 50):
+                i = i + 1
+                Found=False
+                #LOG.red(files_dependencies)
+                zero = []
+                for k in files_dependencies:
+                    v = files_dependencies[k]
+                    if(len(v) == 0):
+                        file = k
+                        if(file in files_dir):
+                            files_dir.remove(file)
+                        zero.append(k)
+                        Found = True
+                        content+= "///<reference path=\""+k+"\"/>\n"
+                        for key in files_dependencies:
+                            value = files_dependencies[key]
+                            if(file in value):
+                                files_dependencies[key].remove(file)
+                for file in zero:
+                    files_dependencies.pop(file, None)
+            if(len(files_dependencies.keys())>0):
+                LOG.red("You have an error on your ///<file> imports")
+                content += "///Dependencies not resolved : "+str(files_dependencies)+"\n"
+                content += "\n/* Internal files */\n"
             for line in files_dir:
                 content+= "///<reference path=\""+line+"\"/>\n"
+            
 
         f = open(moduleFile, "w")
         f.write(content)
