@@ -11,6 +11,7 @@ import hashlib
 import shutil
 from pprint import pprint
 from subprocess import *
+from distutils.spawn import find_executable
 
 
 VERSION = 3.1
@@ -1189,14 +1190,17 @@ if __name__ == '__main__':
     #LOG.red(os.getcwd())
     #
     if(TYPESCRIPT_PATH is None):
+        path_used = None
         if(Tools.cmdExist("tsc")):
             TYPESCRIPT_PATH = ["tsc"]
+            path_used = find_executable("tsc")
         else:
             path = os.path.dirname(os.path.realpath(__file__))
             path = os.path.join(path, "../")
-            TYPESCRIPT_PATH = ["node", path+"node_modules/typescript/bin/tsc.js" ]
+            path_used = path+"node_modules/typescript/bin/tsc.js" 
+            TYPESCRIPT_PATH = ["node", path_used ]
         LOG.green("Typescript version:")
-        LOG.blue("Typescript path : "+str(TYPESCRIPT_PATH))
+        LOG.blue("Typescript path : "+str(path_used))
         subprocess.call(TYPESCRIPT_PATH+["-v"])
 
     if(not os.path.isfile('metatypescript.json')):
