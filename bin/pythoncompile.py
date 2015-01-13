@@ -1196,7 +1196,7 @@ if __name__ == '__main__':
             path = os.path.join(path, "../")
             TYPESCRIPT_PATH = ["node", path+"node_modules/typescript/bin/tsc.js" ]
         LOG.green("Typescript version:")
-        LOG.blue("Typescript path : "+TYPESCRIPT_PATH)
+        LOG.blue("Typescript path : "+str(TYPESCRIPT_PATH))
         subprocess.call(TYPESCRIPT_PATH+["-v"])
 
     if(not os.path.isfile('metatypescript.json')):
