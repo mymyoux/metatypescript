@@ -626,22 +626,25 @@ class Tools:
                 notifySubtitle = "-substitle '"+subtitle+"'"
             os.system("terminal-notifier -message '"+text+"' "+notifySubtitle+" -title '"+title+"' -activate com.googlecode.iterm2 -sound "+sound+" -group compile")
         else:
-            import pynotify
-            if not pynotify.init("Typescript compilation"):
-                print "Failed to send notification"
-            else:
-                notifyTitle = title
-                if(subtitle is not None and len(subtitle.strip()) > 0):
-                    notifyTitle += "\n"+subtitle
-                n = pynotify.Notification(notifyTitle, text, "dialog-"+icon)
-                n.set_urgency(pynotify.URGENCY_NORMAL)
-                n.set_timeout(2500)
-                try:
-                    if not n.show():
-                        print "Failed to send notification"
-                except:
-                    print "Failed to send notification (restart metatypescript is needed)"
-                    pass
+            try:
+                import pynotify
+                if not pynotify.init("Typescript compilation"):
+                    print "Failed to send notification"
+                else:
+                    notifyTitle = title
+                    if(subtitle is not None and len(subtitle.strip()) > 0):
+                        notifyTitle += "\n"+subtitle
+                    n = pynotify.Notification(notifyTitle, text, "dialog-"+icon)
+                    n.set_urgency(pynotify.URGENCY_NORMAL)
+                    n.set_timeout(2500)
+                    try:
+                        if not n.show():
+                            print "Failed to send notification"
+                    except:
+                        print "Failed to send notification (restart metatypescript is needed)"
+                        pass
+            except:
+                LOG.red("Failed to send notification")
 
 
 class TSFile:
