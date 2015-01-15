@@ -870,6 +870,7 @@ class TSFile:
                     files_dependencies.pop(file, None)
             if(len(files_dependencies.keys())>0):
                 LOG.red("You have an error on your ///<file> imports")
+                LOG.red(str(files_dependencies))
                 content += "///Dependencies not resolved : "+str(files_dependencies)+"\n"
                 content += "\n/* Internal files */\n"
             for line in files_dir:
