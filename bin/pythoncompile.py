@@ -158,6 +158,14 @@ class MegaWatcher:
         else:
             return None
 
+    def getModuleList(self):
+        module_list = []
+        keys = self.__fileWatchers.keys()
+        for name in keys:
+            module_list.append(name)
+        return module_list
+
+
     def watch(self):
         try:
             i = 0
@@ -306,6 +314,9 @@ class MegaWatcher:
                         if(source):
                             args = ["node",".pythoncompile/node_modules/source-map-concat/bin/source-map-concat.js","--source-file", data["out"][out],"--out-file",data["out"][out]+".map"] + maps
                             call(args)
+                    else:
+                        LOG.error("No module named "+str(out)+" "+str(data["out"][out])+" can't be created - modules list:")
+                        LOG.error(self.getModuleList())
                         
                 #LOG.green("Step 3 in "+str(round(time.time()-start_time,2))+"s")
                     #print(self.getModule(out))
@@ -363,6 +374,8 @@ class MegaWatcher:
             #print(self.getModule(dependency).getJSContent())
                     #print(dependency, len(dep[dependency]),dep[dependency])
         if j>=100:
+            LOG.red(dep_list)
+            LOG.red(dep_order)
             raise Exception("Dependencies cycle")
         else:
             return dep_order
