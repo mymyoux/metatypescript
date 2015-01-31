@@ -1266,7 +1266,8 @@ if __name__ == '__main__':
         LOG.red(os.getcwd()+"/metatypescript.json not found")
         sys.exit(1)
     data = json.load(file_config)
-    
+    if("target" in data):
+        ESVersion = data["target"]
     file_config.close()
     initialize = False
 
