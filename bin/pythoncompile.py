@@ -9,12 +9,13 @@ import json
 import copy
 import hashlib
 import shutil
+import random
 from pprint import pprint
 from subprocess import *
 from distutils.spawn import find_executable
 
 
-VERSION = 3.1
+VERSION = 3.2
 
 REGEXP_IMPORT = re.compile('/// *<reference path="(.*)/([^/]+)/[^"]+" */>')
 #REGEXP_IMPORT_D_TS = re.compile('/// *<reference path=".*/([^/]+)/[^.]+\.class\.d\.ts" */>')
@@ -82,6 +83,40 @@ class Console:
 
     def __print(self, value):
         print(value)
+
+class Voice:
+    def __init__(self):
+        self.count = 0
+        self.good = ["thats better", "yep", "ok", "good", "very good", "excellent", "great", "you are on FIRE", "Hoorray!!"];
+        self.score = [-10, 0, 10, 20, 30, 40, 50, 60, 70];
+
+    def getBadSound(self):
+        if(self.count > 0):
+            self.count = 0
+        self.count -= 1
+        return self.__getSound()
+
+    def getGoodSound(self):
+        self.count += 1
+        return self.__getSound()
+
+    def __getSound(self):
+        r = self.getRandom()
+        l = len(self.score)
+        for i in range(l):
+            if(self.score[i]>r):
+                return self.good[i]
+        self.count = 0
+        return "imbattable"
+
+    def getRandom(self):
+        left = self.count
+        right = self.count*10
+        if(left>right):
+            left, right = right, left
+        return random.randint(left, right)
+
+voice = Voice()
 
 
 class MegaWatcher:
@@ -331,6 +366,7 @@ class MegaWatcher:
             if(isFailed or errors > 0):
                 LOG.error("End of step with errors : "+str(compilations)+" compilation(s) and "+str(errors)+" error(s)")
                 if(USE_SOUND):
+                    voice.getBadSound()
                     Tools.speak(str(errors)+" error")
                     
                 if(USE_NOTIFICATION):
@@ -349,7 +385,7 @@ class MegaWatcher:
             else:
                 LOG.green("End of step : "+str(compilations)+" compilation(s) and "+str(errors)+" error(s)")
                 if(USE_SOUND):
-                    Tools.speak("ok")
+                    Tools.speak(voice.getGoodSound())
                 if(USE_NOTIFICATION):
         	    Tools.notify(str("\n".join(module_list)), "Success!", str("\n".join(module_list_error)), "ok", "Purr")
                     #os.system("osascript -e 'display notification \"Success\" with title \"Success\"'")
@@ -521,6 +557,7 @@ class TSFilesWatcher:
             if(isFailed or errors > 0):
                 LOG.error("End of step with errors : "+str(compilations)+" compilation(s) and "+str(errors)+" error(s)")
                 if(USE_SOUND):
+                    voice.getBadSound()
                     Tools.speak(str(errors)+" error")
                 if(USE_NOTIFICATION):
                     error_msg = None
@@ -538,7 +575,7 @@ class TSFilesWatcher:
             else:
                 LOG.green("End of step : "+str(compilations)+" compilation(s) and "+str(errors)+" error(s)")
                 if(USE_SOUND):
-                    Tools.speak("ok")
+                    Tools.speak(voice.getGoodSound())
                 if(USE_NOTIFICATION):
         	    Tools.notify(str("\n".join(module_list)), "Success!", str("\n".join(module_list_error)), "ok", "Purr")
                     #os.system("osascript -e 'display notification \"Success\" with title \"Success\"'")
