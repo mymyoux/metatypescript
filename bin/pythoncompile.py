@@ -88,7 +88,8 @@ class Voice:
     def __init__(self):
         self.count = 0
         self.good = ["thats better", "yep", "ok", "good", "very good", "excellent", "great", "you are on FIRE", "Hoorray!!"];
-        self.score = [-10, 0, 10, 20, 30, 40, 50, 60, 70];
+        #self.score = [-10, 0, 10, 20, 30, 40, 50, 60, 70];
+        self.neutral = 2
 
     def getBadSound(self):
         if(self.count > 0):
@@ -102,9 +103,10 @@ class Voice:
 
     def __getSound(self):
         r = self.getRandom()
-        l = len(self.score)
+        l = len(self.good)
         for i in range(l):
-            if(self.score[i]>r):
+            if((i-self.neutral+1)*10>r):
+                #print(str(self.score[i])+":"+str(((i-self.neutral+1)*10)))
                 return self.good[i]
         self.count = 0
         return "imbattable"
