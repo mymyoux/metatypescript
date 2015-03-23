@@ -28,6 +28,7 @@ ESVersion = 3
 USE_SOUND = True
 USE_NOTIFICATION = True
 TYPESCRIPT_PATH = None
+ONCE = False
 
 class Console:
     def __init__(self):
@@ -210,6 +211,7 @@ class MegaWatcher:
             while(True):
                 i = i + 1
                 self.compileAll()
+                
                 time.sleep(2)
                 if(i%5 == 0):
                     for name in keys:
@@ -229,6 +231,7 @@ class MegaWatcher:
         metaHasCompiled = False
         hasCompiled = True
 
+        self.__errors = 0
         errors = 0
         compilations = 0
 
@@ -390,6 +393,9 @@ class MegaWatcher:
                     Tools.speak(voice.getGoodSound())
                 if(USE_NOTIFICATION):
         	    Tools.notify(str("\n".join(module_list)), "Success!", str("\n".join(module_list_error)), "ok", "Purr")
+                if(ONCE == True):
+                    LOG.info("done")
+                    sys.exit(0)
                     #os.system("osascript -e 'display notification \"Success\" with title \"Success\"'")
     def getDependenciesInOrder(self, dep, dep_list):
         dep_order = []
@@ -1275,7 +1281,7 @@ if __name__ == '__main__':
 
     directories = data["folders"]
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "d:es5:ns:nn:init:R", ["directory=","es5","nosound","nonotification","initialize","reset"])
+        opts, args = getopt.getopt(sys.argv[1:], "d:es5:ns:nn:init:R:o", ["directory=","es5","nosound","nonotification","initialize","reset","once"])
         for o, a in opts:
             if o in ("-d", "--directory"):
                 directories = [a]
@@ -1287,6 +1293,8 @@ if __name__ == '__main__':
                 USE_NOTIFICATION = False
             elif o in ("-init","--initialize"):
                 initialize = True
+            elif o in ("-o","--once"):
+                ONCE = True
             elif o in ("-R","--reset"):
                 if(os.path.exists('.cache_metacompile.json')): 
                     if(os.path.isfile('.cache_metacompile.json')):
