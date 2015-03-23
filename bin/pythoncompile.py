@@ -396,6 +396,10 @@ class MegaWatcher:
                 if(ONCE == True):
                     LOG.info("done")
                     sys.exit(0)
+        else:
+            if(ONCE == True and not isFailed and errors == 0):
+                LOG.info("done")
+                sys.exit(0)
                     #os.system("osascript -e 'display notification \"Success\" with title \"Success\"'")
     def getDependenciesInOrder(self, dep, dep_list):
         dep_order = []
