@@ -868,6 +868,9 @@ class TSFile:
                                         #LOG.green("add "+module_file+" from "+str(f))
                                         #files_dir.insert(0, module_file)
                                     elif(type == "lib"):
+                                        if(result == "es6-promise" and ESVersion == 6):
+                                            LOG.green("Ignore ES6-promise lib")
+                                            continue
                                         #import d'une librairie
                                         module_file = ".."+os.path.sep+".."+os.path.sep+".."+os.path.sep+"lib"+os.path.sep+result+os.path.sep+result+".d.ts"
                                         if(module_file not in lib_import):
@@ -1269,6 +1272,7 @@ if __name__ == '__main__':
         LOG.blue("Typescript path : "+str(path_used))
         subprocess.call(TYPESCRIPT_PATH+["-v"])
 
+
     if(not os.path.isfile('metatypescript.json')):
         LOG.orange("No metatypescript.json file found - initializing a new project")
         initialize()
@@ -1309,6 +1313,7 @@ if __name__ == '__main__':
     if(initialize):
         initialize()
 
+    LOG.green("ES:"+str(ESVersion))
     MegaWatcher(directories)
     exit(1)
     for folder in directories:

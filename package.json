@@ -6,7 +6,7 @@
   },
   "name": "metatypescript",
   "description": "Typescript module - sync. Alternative to CommonJS, AMD and RequireJS",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "repository": {
     "type":"git",
     "url": "https://github.com/mymyoux/metatypescript.git"
