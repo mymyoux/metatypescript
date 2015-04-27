@@ -406,7 +406,7 @@ class MegaWatcher:
         dep_save = copy.deepcopy(dep)
         i = 0
         j = 0
-        while(len(dep_list)>0 and j<100):
+        while(len(dep_list)>0 and j<1000):
             dependency = dep_list[i]
             for done in dep_order:
                 if(done in dep_save[dependency]):
@@ -421,8 +421,11 @@ class MegaWatcher:
             j = j + 1
             #print(self.getModule(dependency).getJSContent())
                     #print(dependency, len(dep[dependency]),dep[dependency])
-        if j>=100:
+        if j>=1000:
             LOG.red(dep_list)
+            for module in dep_list:
+                LOG.blue(module)
+                LOG.green(dep_save[module])
             LOG.red(dep_order)
             raise Exception("Dependencies cycle")
         else:
